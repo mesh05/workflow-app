@@ -10,7 +10,7 @@ export default function NodeMenu() {
   };
 
   return (
-    <div style={{ width: "28vh" }}>
+    <div>
       <h2>Node Menu</h2>
       {nodeTypeList.map((node) => (
         <div

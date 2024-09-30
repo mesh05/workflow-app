@@ -16,6 +16,8 @@ import "@xyflow/react/dist/style.css";
 type CustomNode = Node;
 
 import { DnDProvider, useDnD } from "./DnDContext";
+import NodeMenu from "./NodeMenu";
+import NodeProperties from "./NodeProperties";
 
 const initialNodes: CustomNode[] = [
   {
@@ -58,6 +60,10 @@ const DnDFlow = () => {
     event.dataTransfer.dropEffect = "move";
   }, []);
 
+  const onNodeClick = (event: React.MouseEvent, node: Node) => {
+    console.log("onNodeClick", node);
+  };
+
   // (BUG) On drop is returning type as null
   const onDrop = useCallback(
     (event: React.DragEvent) => {
@@ -85,17 +91,28 @@ const DnDFlow = () => {
   );
 
   return (
-    <div className="dndflow" style={{ height: "100vh", width: "170vh" }}>
-      <div className="reactflow-wrapper" ref={reactFlowWrapper}>
+    <div className="dndflow">
+      <div style={{ width: "15vw" }}>
+        <NodeMenu />
+        <NodeProperties nodes={nodes} />
+      </div>
+      <div
+        className="reactflow-wrapper"
+        style={{ height: "100vh", width: "85vw" }}
+        ref={reactFlowWrapper}
+      >
         <ReactFlow
           nodes={nodes}
           edges={edges}
+          onNodeClick={onNodeClick}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           onDrop={onDrop}
           onDragOver={onDragOver}
+          colorMode="dark"
           fitView
+          proOptions={{ hideAttribution: true }}
         >
           <Background />
           <Controls />
