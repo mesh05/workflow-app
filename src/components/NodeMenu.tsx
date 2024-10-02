@@ -14,8 +14,8 @@ export default function NodeMenu() {
       <h2>Node Menu</h2>
       {nodeTypeList.map((node) => (
         <div
+          style={{ margin: "20px", padding: "10px", border: "1px solid black" }}
           key={node}
-          style={{ margin: "20px" }}
           onDragStart={(event) => onDragStart(event, node)}
           draggable
         >

@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from "react";
+import React, { useRef, useCallback, useState } from "react";
 import {
   Node,
   ReactFlow,
@@ -13,30 +13,36 @@ import {
 import "./index.css";
 import "@xyflow/react/dist/style.css";
 
-type CustomNode = Node;
-
 import { DnDProvider, useDnD } from "./DnDContext";
 import NodeMenu from "./NodeMenu";
 import NodeProperties from "./NodeProperties";
 
-const initialNodes: CustomNode[] = [
+//Create custom types of nodes
+
+const initialNodes: Node[] = [
   {
     id: "1",
     type: "input",
-    data: { label: "Input node" },
+    data: { label: "File Input Node" },
     position: { x: 250, y: 5 },
   },
   {
     id: "2",
-    type: "model",
-    data: { label: "Model" },
-    position: { x: 250, y: 100 },
+    type: "model learner",
+    data: { label: "Model Learner" },
+    position: { x: 250, y: 105 },
   },
   {
     id: "3",
+    type: "model predictor",
+    data: { label: "Model Predictor" },
+    position: { x: 250, y: 205 },
+  },
+  {
+    id: "4",
     type: "output",
     data: { label: "Output" },
-    position: { x: 250, y: 200 },
+    position: { x: 250, y: 305 },
   },
 ];
 
@@ -48,6 +54,7 @@ const DnDFlow = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const { screenToFlowPosition } = useReactFlow();
+  const [nodeSelected, setNodeSelected] = useState<Node | null>(null);
   const [type] = useDnD();
 
   const onConnect = useCallback(
@@ -61,6 +68,7 @@ const DnDFlow = () => {
   }, []);
 
   const onNodeClick = (event: React.MouseEvent, node: Node) => {
+    setNodeSelected(node);
     console.log("onNodeClick", node);
   };
 
@@ -78,7 +86,7 @@ const DnDFlow = () => {
         x: event.clientX,
         y: event.clientY,
       });
-      const newNode: CustomNode = {
+      const newNode: Node = {
         id: getId(),
         type,
         position,
@@ -94,7 +102,7 @@ const DnDFlow = () => {
     <div className="dndflow">
       <div style={{ width: "15vw" }}>
         <NodeMenu />
-        <NodeProperties nodes={nodes} />
+        <NodeProperties nodes={nodes} nodeSelected={nodeSelected} />
       </div>
       <div
         className="reactflow-wrapper"
