@@ -1,12 +1,14 @@
 import { useDnD } from "./DnDContext";
 
 export default function NodeMenu() {
-  const [_, setType] = useDnD();
+  const [, setType] = useDnD();
   const nodeTypeList = ["input", "model", "output"];
 
   const onDragStart = (event: React.DragEvent, nodeType: string) => {
-    setType(nodeType);
-    event.dataTransfer.effectAllowed = "move";
+    if (setType) {
+      setType(nodeType);
+      event.dataTransfer.effectAllowed = "move";
+    }
   };
 
   return (

@@ -9,6 +9,7 @@ import {
   Controls,
   useReactFlow,
   Background,
+  Connection,
 } from "@xyflow/react";
 import "./index.css";
 import "@xyflow/react/dist/style.css";
@@ -28,21 +29,27 @@ const initialNodes: Node[] = [
   },
   {
     id: "2",
-    type: "model learner",
-    data: { label: "Model Learner" },
+    type: "split data",
+    data: { label: "split data (80/20)" },
     position: { x: 250, y: 105 },
   },
   {
     id: "3",
-    type: "model predictor",
-    data: { label: "Model Predictor" },
+    type: "model learner",
+    data: { label: "Model Learner" },
     position: { x: 250, y: 205 },
   },
   {
     id: "4",
+    type: "model predictor",
+    data: { label: "Model Predictor" },
+    position: { x: 250, y: 305 },
+  },
+  {
+    id: "5",
     type: "output",
     data: { label: "Output" },
-    position: { x: 250, y: 305 },
+    position: { x: 250, y: 405 },
   },
 ];
 
@@ -53,12 +60,13 @@ const DnDFlow = () => {
   const reactFlowWrapper = useRef(null);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const { screenToFlowPosition } = useReactFlow();
+  const { screenToFlowPosition, updateNodeData } = useReactFlow();
   const [nodeSelected, setNodeSelected] = useState<Node | null>(null);
   const [type] = useDnD();
 
   const onConnect = useCallback(
-    (params) => setEdges((eds) => addEdge(params, eds)),
+    (connection: Connection) =>
+      setEdges((prevEdge) => addEdge(connection, prevEdge)),
     [],
   );
 
@@ -102,7 +110,11 @@ const DnDFlow = () => {
     <div className="dndflow">
       <div style={{ width: "15vw" }}>
         <NodeMenu />
-        <NodeProperties nodes={nodes} nodeSelected={nodeSelected} />
+        <NodeProperties
+          nodes={nodes}
+          nodeSelected={nodeSelected}
+          updateNodeData={updateNodeData}
+        />
       </div>
       <div
         className="reactflow-wrapper"
