@@ -1,10 +1,11 @@
-import { Node } from "@xyflow/react";
+import { Node, useHandleConnections, useNodesData } from "@xyflow/react";
 import { useState } from "react";
 import * as d3 from "d3";
+import * as tf from "@tensorflow/tfjs";
 
 //(BUG) The data is not being updated in the node data properly
 
-type Data = { file: { name: string; size: number }; data: string[][] } | null;
+type Data = { file: { name: string; size: number }; data: number[][] } | null;
 
 export default function NodeProperties({
   nodes,
@@ -22,6 +23,7 @@ export default function NodeProperties({
   ) => void;
 }) {
   const [data, setData] = useState<Data>(null);
+  const [connections, setConnections] = useState([]);
   if (!nodeSelected) {
     return;
   }
@@ -36,7 +38,13 @@ export default function NodeProperties({
       />
     );
   if (nodeSelected.type === "split data")
-    return <SplitData node={nodeSelected} />;
+    return (
+      <SplitData
+        node={nodeSelected}
+        connections={connections}
+        setConnections={setConnections}
+      />
+    );
   if (nodeSelected.type === "model learner")
     return <ModelLearner node={nodeSelected} />;
   if (nodeSelected.type === "model predictor")
@@ -82,7 +90,7 @@ function Input({
 
               // converting to 2D array for the tensor
               const result = csvData.map((item) => {
-                return keys.map((key) => item[key]);
+                return keys.map((key) => Number(item[key]));
               });
 
               setData({
@@ -104,11 +112,38 @@ function Input({
   );
 }
 
-function SplitData({ node }: { node: Node }) {
+function SplitData({
+  node,
+  connections,
+  setConnections,
+}: {
+  node: Node;
+  connections: any;
+  setConnections: any;
+}) {
+  setConnections(useHandleConnections({ type: "target", nodeId: node.id }));
+  const inputData = useNodesData(connections[0]?.source);
+  if (connections.length === 0) {
+    return (
+      <div>
+        <h2>Split Data Node</h2>
+        Connect the node to an input node
+      </div>
+    );
+  }
+  if (!inputData?.data.data) {
+    return (
+      <div>
+        <h2>Split Data Node</h2>
+        Provide Data to input node
+      </div>
+    );
+  }
+  tf.tensor2d(inputData.data.data as number[][]);
   return (
     <div>
       <h2>Split Data Node</h2>
-      <p>{JSON.stringify(node)}</p>
+      <p>{JSON.stringify(inputData.data.data as number[][])}</p>
     </div>
   );
 }
