@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useState } from "react";
+import React, { useRef, useCallback } from "react";
 import {
   Node,
   ReactFlow,
@@ -17,6 +17,10 @@ import "@xyflow/react/dist/style.css";
 import { DnDProvider, useDnD } from "./DnDContext";
 import NodeMenu from "./NodeMenu";
 import NodeProperties from "./NodeProperties";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { selectedNodeState } from "../recoil/atoms";
+import SplitDataType from "./nodes/SplitData";
+import { flowState } from "../recoil/atoms";
 
 //Create custom types of nodes
 
@@ -29,19 +33,19 @@ const initialNodes: Node[] = [
   },
   {
     id: "2",
-    type: "split data",
+    type: "split_data",
     data: { label: "split data (80/20)" },
     position: { x: 250, y: 105 },
   },
   {
     id: "3",
-    type: "model learner",
+    type: "model_learner",
     data: { label: "Model Learner" },
     position: { x: 250, y: 205 },
   },
   {
     id: "4",
-    type: "model predictor",
+    type: "model_predictor",
     data: { label: "Model Predictor" },
     position: { x: 250, y: 305 },
   },
@@ -61,7 +65,8 @@ const DnDFlow = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const { screenToFlowPosition, updateNodeData } = useReactFlow();
-  const [nodeSelected, setNodeSelected] = useState<Node | null>(null);
+  const [nodeSelected, setNodeSelected] = useRecoilState(selectedNodeState);
+  const [flowData, setFlowData] = useRecoilState(flowState);
   const [type] = useDnD();
 
   const onConnect = useCallback(
@@ -77,7 +82,7 @@ const DnDFlow = () => {
 
   const onNodeClick = (event: React.MouseEvent, node: Node) => {
     setNodeSelected(node);
-    console.log("onNodeClick", node);
+    console.log("onNodeClick", nodeSelected);
   };
 
   // (BUG) On drop is returning type as null
@@ -106,15 +111,20 @@ const DnDFlow = () => {
     [screenToFlowPosition, type],
   );
 
+  const onNodesDelete = useCallback((nodes) => {
+    const newFlowData = flowData.filter((tnode) => {
+      // TODO: Return only the nodes from flowData that are in the nodes array, currently it refreshes the flowData
+      return tnode.nodeId !== nodeSelected.id;
+    });
+    console.log(newFlowData);
+    setFlowData(newFlowData);
+  }, []);
+
   return (
     <div className="dndflow">
       <div style={{ width: "15vw" }}>
         <NodeMenu />
-        <NodeProperties
-          nodes={nodes}
-          nodeSelected={nodeSelected}
-          updateNodeData={updateNodeData}
-        />
+        <NodeProperties edges={edges} updateNodeData={updateNodeData} />
       </div>
       <div
         className="reactflow-wrapper"
@@ -124,12 +134,16 @@ const DnDFlow = () => {
         <ReactFlow
           nodes={nodes}
           edges={edges}
+          // nodeTypes={{
+          //   split_data: SplitDataType,
+          // }}
           onNodeClick={onNodeClick}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           onDrop={onDrop}
           onDragOver={onDragOver}
+          onNodesDelete={onNodesDelete}
           colorMode="dark"
           fitView
           proOptions={{ hideAttribution: true }}

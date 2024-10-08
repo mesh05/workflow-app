@@ -1,19 +1,16 @@
-import { Node, useHandleConnections, useNodesData } from "@xyflow/react";
-import { useState } from "react";
+import { Node, Edge, useHandleConnections, useNodes } from "@xyflow/react";
+import { useEffect, useState } from "react";
 import * as d3 from "d3";
 import * as tf from "@tensorflow/tfjs";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { flowState, selectedNodeState } from "../recoil/atoms";
 
-//(BUG) The data is not being updated in the node data properly
-
-type Data = { file: { name: string; size: number }; data: number[][] } | null;
+// type Data = { file: { name: string; size: number }; data: number[][] } | null;
 
 export default function NodeProperties({
-  nodes,
-  nodeSelected,
   updateNodeData,
 }: {
-  nodes: Node[];
-  nodeSelected: Node | null;
+  edges: Edge[];
   updateNodeData: (
     id: string,
     dataUpdate:
@@ -22,22 +19,24 @@ export default function NodeProperties({
     options?: { replace: boolean } | undefined,
   ) => void;
 }) {
-  const [data, setData] = useState<Data>(null);
+  // const [data, setData] = useState<Data>(null);
+  const [nodeSelected, setNodeSelected] = useRecoilState(selectedNodeState);
+  const [flowData, setFlowData] = useRecoilState(flowState);
   const [connections, setConnections] = useState([]);
+  console.log(flowData);
   if (!nodeSelected) {
     return;
   }
   if (nodeSelected.type === "input")
     return (
       <Input
-        nodes={nodes}
         node={nodeSelected}
-        data={data}
-        setData={setData}
+        flowData={flowData}
+        setFlowData={setFlowData}
         updateNodeData={updateNodeData}
       />
     );
-  if (nodeSelected.type === "split data")
+  if (nodeSelected.type === "split_data")
     return (
       <SplitData
         node={nodeSelected}
@@ -54,15 +53,13 @@ export default function NodeProperties({
 
 function Input({
   node,
-  nodes,
-  data,
-  setData,
+  flowData,
+  setFlowData,
   updateNodeData,
 }: {
   node: Node;
-  nodes: Node[];
-  data: Data;
-  setData: (data: Data) => void;
+  flowData: any;
+  setFlowData: any;
   updateNodeData: (
     id: string,
     dataUpdate:
@@ -71,6 +68,8 @@ function Input({
     options?: { replace: boolean } | undefined,
   ) => void;
 }) {
+  const nodes: Node[] = useNodes();
+  console.log(nodes);
   return (
     <div>
       <h2> File Input Node</h2>
@@ -92,22 +91,35 @@ function Input({
               const result = csvData.map((item) => {
                 return keys.map((key) => Number(item[key]));
               });
-
-              setData({
-                file: { name: file.name, size: file.size },
-                data: result,
-              });
-              updateNodeData(node.id, {
-                file: { name: file.name, size: file.size },
-                data: result,
-              });
+              setFlowData([
+                ...flowData,
+                {
+                  nodeId: node.id,
+                  type: "input",
+                  file: { name: file.name, size: file.size },
+                  data: result,
+                },
+              ]);
             }
           };
           reader.readAsText(file);
         }}
       />
-      {data ? <p>{JSON.stringify(data.file)}</p> : <div>Upload file</div>}
-      <p>{JSON.stringify(nodes)}</p>
+      {/* TODO: remove the double search */}
+      {flowData.find((tnode) => {
+        return tnode.nodeId === node.id;
+      }) !== undefined ? (
+        <p>
+          {JSON.stringify(
+            flowData.find((tnode) => {
+              return tnode.nodeId === node.id;
+            }).file,
+          )}
+        </p>
+      ) : (
+        <div>Upload file</div>
+      )}
+      {/* <p>{JSON.stringify(nodes)}</p> */}
     </div>
   );
 }
@@ -121,8 +133,15 @@ function SplitData({
   connections: any;
   setConnections: any;
 }) {
+  // The solution implemented here is bad, need to find a better way to handle connections
   setConnections(useHandleConnections({ type: "target", nodeId: node.id }));
-  const inputData = useNodesData(connections[0]?.source);
+  const [flowData, setFlowData] = useRecoilState(flowState);
+  const inputData: any = flowData.find((tnode: any) => {
+    return tnode.nodeId === connections[0]?.source;
+  });
+  const data_80 = inputData?.data.filter((_: number, i: number) => i % 5 !== 0);
+  const data_20 = inputData?.data.filter((_: number, i: number) => i % 5 === 0);
+  console.log(data_20);
   if (connections.length === 0) {
     return (
       <div>
@@ -131,7 +150,7 @@ function SplitData({
       </div>
     );
   }
-  if (!inputData?.data.data) {
+  if (!inputData?.data) {
     return (
       <div>
         <h2>Split Data Node</h2>
@@ -139,11 +158,14 @@ function SplitData({
       </div>
     );
   }
-  tf.tensor2d(inputData.data.data as number[][]);
+
   return (
     <div>
       <h2>Split Data Node</h2>
-      <p>{JSON.stringify(inputData.data.data as number[][])}</p>
+      <p>
+        The provided dataset will be split into training and testing datasets
+      </p>
+      <p>{JSON.stringify(inputData.file)}</p>
     </div>
   );
 }
