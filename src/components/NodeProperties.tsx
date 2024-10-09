@@ -105,7 +105,7 @@ function Input({
           reader.readAsText(file);
         }}
       />
-      {/* TODO: remove the double search */}
+      {/* TODO: remove one loop search */}
       {flowData.find((tnode) => {
         return tnode.nodeId === node.id;
       }) !== undefined ? (

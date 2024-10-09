@@ -89,8 +89,6 @@ const DnDFlow = () => {
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault();
-      console.log("onDrop", type);
-      // check if the dropped element is valid
       if (!type || typeof type !== "string") {
         return;
       }
@@ -111,14 +109,16 @@ const DnDFlow = () => {
     [screenToFlowPosition, type],
   );
 
-  const onNodesDelete = useCallback((nodes) => {
-    const newFlowData = flowData.filter((tnode) => {
-      // TODO: Return only the nodes from flowData that are in the nodes array, currently it refreshes the flowData
-      return tnode.nodeId !== nodeSelected.id;
-    });
-    console.log(newFlowData);
-    setFlowData(newFlowData);
-  }, []);
+  const onNodeDelete = useCallback(
+    (node) => {
+      const newFlowData = flowData.filter((tnode) => {
+        return tnode.nodeId !== node[0].id;
+      });
+      console.log("delete ", node[0]);
+      setFlowData(newFlowData);
+    },
+    [flowData],
+  );
 
   return (
     <div className="dndflow">
@@ -143,7 +143,7 @@ const DnDFlow = () => {
           onConnect={onConnect}
           onDrop={onDrop}
           onDragOver={onDragOver}
-          onNodesDelete={onNodesDelete}
+          onNodesDelete={onNodeDelete}
           colorMode="dark"
           fitView
           proOptions={{ hideAttribution: true }}
