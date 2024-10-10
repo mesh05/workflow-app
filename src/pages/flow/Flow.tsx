@@ -14,13 +14,13 @@ import {
 import "./index.css";
 import "@xyflow/react/dist/style.css";
 
-import { DnDProvider, useDnD } from "./DnDContext";
-import NodeMenu from "./NodeMenu";
-import NodeProperties from "./NodeProperties";
+import { DnDProvider, useDnD } from "../../components/DnDContext";
+import NodeMenu from "../../components/NodeMenu";
+import NodeProperties from "../../components/NodeProperties";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { selectedNodeState } from "../recoil/atoms";
-import SplitDataType from "./nodes/SplitData";
-import { flowState } from "../recoil/atoms";
+import { selectedNodeState } from "../../recoil/atoms";
+import { SplitDataType } from "../../components/nodes/SplitDataNode";
+import { flowState } from "../../recoil/atoms";
 
 //Create custom types of nodes
 
@@ -128,15 +128,15 @@ const DnDFlow = () => {
       </div>
       <div
         className="reactflow-wrapper"
-        style={{ height: "100vh", width: "85vw" }}
+        style={{ height: "94vh", width: "85vw" }}
         ref={reactFlowWrapper}
       >
         <ReactFlow
           nodes={nodes}
           edges={edges}
-          // nodeTypes={{
-          //   split_data: SplitDataType,
-          // }}
+          nodeTypes={{
+            split_data: SplitDataType,
+          }}
           onNodeClick={onNodeClick}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}

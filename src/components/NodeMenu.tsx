@@ -2,7 +2,13 @@ import { useDnD } from "./DnDContext";
 
 export default function NodeMenu() {
   const [, setType] = useDnD();
-  const nodeTypeList = ["input", "split_data", "model", "output"];
+  const nodeTypeList = [
+    "input",
+    "split_data",
+    "model_learner",
+    "model_predictor",
+    "output",
+  ];
 
   const onDragStart = (event: React.DragEvent, nodeType: string) => {
     if (setType) {
