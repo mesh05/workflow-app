@@ -12,7 +12,9 @@ import MenuItem from "@mui/material/MenuItem";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import { Link, useLocation } from "react-router-dom";
 import SaveIcon from "@mui/icons-material/Save";
-
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
 const settings = ["Import", "Export"];
 
 export default function Navbar() {
@@ -57,6 +59,9 @@ export default function Navbar() {
                 SuperChatAI
               </Typography>
             </Link>
+            <FormGroup>
+            <FormControlLabel control={<Switch defaultChecked />} label="Dark" />
+            </FormGroup>
 
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
