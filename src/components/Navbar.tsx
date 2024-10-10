@@ -5,37 +5,23 @@ import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import Menu from "@mui/material/Menu";
-import MenuIcon from "@mui/icons-material/Menu";
 import SettingsIcon from "@mui/icons-material/Settings";
 import Container from "@mui/material/Container";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import AdbIcon from "@mui/icons-material/Adb";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import SaveIcon from "@mui/icons-material/Save";
 
-const pages = [];
 const settings = ["Import", "Export"];
 
 export default function Navbar() {
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
-    null,
-  );
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null,
   );
 
-  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElNav(event.currentTarget);
-  };
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
   };
 
   const handleCloseUserMenu = () => {
@@ -53,23 +39,24 @@ export default function Navbar() {
             sx={{ display: "flex", justifyContent: "space-between" }}
             disableGutters
           >
-            <Typography
-              variant="h6"
-              noWrap
-              component="a"
-              href="/"
-              sx={{
-                mr: 2,
-                display: { xs: "none", md: "flex" },
-                fontFamily: "monospace",
-                fontWeight: 700,
-                letterSpacing: ".1rem",
-                color: "white",
-                textDecoration: "none",
-              }}
-            >
-              SuperChatAI
-            </Typography>
+            <Link to={{ pathname: "/" }}>
+              <Typography
+                variant="h6"
+                noWrap
+                component="a"
+                sx={{
+                  mr: 2,
+                  display: { xs: "none", md: "flex" },
+                  fontFamily: "monospace",
+                  fontWeight: 700,
+                  letterSpacing: ".1rem",
+                  color: "white",
+                  textDecoration: "none",
+                }}
+              >
+                SuperChatAI
+              </Typography>
+            </Link>
 
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
@@ -98,10 +85,12 @@ export default function Navbar() {
                 onClose={handleCloseUserMenu}
               >
                 {settings.map((setting) => (
-                  <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                    <Typography sx={{ textAlign: "center" }}>
-                      {setting}
-                    </Typography>
+                  <MenuItem
+                    sx={{ width: "150px" }}
+                    key={setting}
+                    onClick={handleCloseUserMenu}
+                  >
+                    <Typography>{setting}</Typography>
                   </MenuItem>
                 ))}
               </Menu>
@@ -113,18 +102,27 @@ export default function Navbar() {
 
   if (path[1] === "workflow")
     return (
-      <div>
+      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
         <Box sx={{ display: "flex", justifyContent: "left" }}>
-          <IconButton href="/" sx={{ ml: "5px", color: "inherit" }}>
-            <ArrowBackIosNewIcon />
-          </IconButton>
+          <Link to={{ pathname: "/" }}>
+            <IconButton sx={{ ml: "5px", color: "inherit" }}>
+              <ArrowBackIosNewIcon sx={{ color: "white" }} />
+            </IconButton>
+          </Link>
           <Typography
             variant="h6"
-            sx={{ ml: "10px", pt: "5px", color: "inherit" }}
+            sx={{ ml: "10px", pt: "3px", color: "inherit" }}
           >
             {workflowName}
           </Typography>
         </Box>
-      </div>
+        <Box sx={{ mr: "20px" }}>
+          <Tooltip title={"Save"}>
+            <IconButton>
+              <SaveIcon sx={{ color: "white" }} />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      </Box>
     );
 }

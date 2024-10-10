@@ -39,7 +39,7 @@ export default function SplitData({
         },
       },
     ]);
-  }, []);
+  }, [connections]);
 
   if (connections.length === 0) {
     return (
@@ -65,7 +65,6 @@ export default function SplitData({
         The provided dataset will be split into training and testing datasets
       </p>
       <p>{JSON.stringify(inputData.file)}</p>
-      <p>{JSON.stringify(data_80)}</p>
     </div>
   );
 }

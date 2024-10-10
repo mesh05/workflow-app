@@ -17,7 +17,7 @@ import "@xyflow/react/dist/style.css";
 import { DnDProvider, useDnD } from "../../components/DnDContext";
 import NodeMenu from "../../components/NodeMenu";
 import NodeProperties from "../../components/NodeProperties";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 import { selectedNodeState } from "../../recoil/atoms";
 import { SplitDataType } from "../../components/nodes/SplitDataNode";
 import { flowState } from "../../recoil/atoms";

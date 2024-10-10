@@ -20,7 +20,7 @@ export default function Home() {
           variant="contained"
           color="primary"
         >
-          <AddIcon />
+          <AddIcon sx={{ mr: "5px" }} />
           Add New
         </Button>
       </Box>
