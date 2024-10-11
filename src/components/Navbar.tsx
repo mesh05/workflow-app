@@ -15,8 +15,9 @@ import SaveIcon from "@mui/icons-material/Save";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
-import { useRecoilState } from "recoil";
-import { workflowState } from "../recoil/atoms";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { currentFlowState, workflowState } from "../recoil/atoms";
+import axios from "axios";
 const settings = ["Import", "Export"];
 
 export default function Navbar() {
@@ -57,6 +58,28 @@ export default function Navbar() {
 
   const location = useLocation();
   const [workflow, setWorkflow] = useRecoilState(workflowState);
+  const currentWorkflow = useRecoilValue(currentFlowState);
+
+  const handleSaveFlow = () => {
+    const newWorkflow = workflow.map((item) => {
+      if (item.id === currentWorkflow.id) {
+        return currentWorkflow;
+      } else {
+        return item;
+      }
+    });
+    setWorkflow(newWorkflow);
+    axios
+      .put("http://localhost:3001/api/v1/workflows", {
+        workflow: currentWorkflow,
+      })
+      .then((res) => {
+        alert("Flow saved!");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
   const path = location.pathname.split("/");
 
   if (path[1] === "")
@@ -157,7 +180,7 @@ export default function Navbar() {
         </Box>
         <Box sx={{ mr: "20px" }}>
           <Tooltip title={"Save"}>
-            <IconButton>
+            <IconButton onClick={handleSaveFlow}>
               <SaveIcon sx={{ color: "white" }} />
             </IconButton>
           </Tooltip>

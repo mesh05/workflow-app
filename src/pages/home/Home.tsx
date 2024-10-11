@@ -37,7 +37,7 @@ export default function Home() {
     const newWorkflow = {
       id: uuidv4(),
       name: name,
-      flowData: {},
+      flowData: { nodes: [], edges: [] },
     };
     const result = await axios.post(
       "http://localhost:3001/api/v1/workflows",
@@ -84,7 +84,7 @@ export default function Home() {
               },
             }}
           >
-            <DialogTitle>Enter workflow name</DialogTitle>
+            <DialogTitle>Workflow name</DialogTitle>
             <DialogContent>
               <DialogContentText>
                 To add a new workflow, please enter the name of the workflow
@@ -141,7 +141,9 @@ export default function Home() {
               >
                 <Typography variant="h6">{workflow.name}</Typography>
                 <Typography variant="body1">
-                  {JSON.stringify(workflow.flowData)}
+                  {JSON.stringify(
+                    workflow.flowData.nodes.map((node) => node.type),
+                  )}
                 </Typography>
               </Paper>
             </Link>

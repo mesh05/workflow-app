@@ -6,6 +6,11 @@ export const workflowState = atom({
   default: [] as any[],
 });
 
+export const currentFlowState = atom({
+  key: "currentFlowState",
+  default: [] as any,
+});
+
 export const flowState = atom({ key: "flowState", default: [] });
 
 export const selectedNodeState = atom({

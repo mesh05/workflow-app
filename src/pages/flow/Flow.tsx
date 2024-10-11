@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from "react";
+import React, { useRef, useCallback, useState, useEffect } from "react";
 import {
   Node,
   ReactFlow,
@@ -10,6 +10,7 @@ import {
   useReactFlow,
   Background,
   Connection,
+  useNodes,
 } from "@xyflow/react";
 import "./index.css";
 import "@xyflow/react/dist/style.css";
@@ -18,9 +19,15 @@ import { DnDProvider, useDnD } from "../../components/DnDContext";
 import NodeMenu from "../../components/NodeMenu";
 import NodeProperties from "../../components/NodeProperties";
 import { useRecoilState } from "recoil";
-import { selectedNodeState } from "../../recoil/atoms";
+import {
+  selectedNodeState,
+  workflowState,
+  currentFlowState,
+} from "../../recoil/atoms";
 import { SplitDataType } from "../../components/nodes/SplitDataNode";
 import { flowState } from "../../recoil/atoms";
+import { useLocation } from "react-router-dom";
+import axios from "axios";
 
 //Create custom types of nodes
 
@@ -62,12 +69,39 @@ const getId = () => `dndnode_${id++}`;
 
 const DnDFlow = () => {
   const reactFlowWrapper = useRef(null);
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const { screenToFlowPosition, updateNodeData } = useReactFlow();
   const [nodeSelected, setNodeSelected] = useRecoilState(selectedNodeState);
   const [flowData, setFlowData] = useRecoilState(flowState);
+  const [workflows, setWorkflows] = useRecoilState(workflowState);
+  const [currentFlow, setCurrentFlow] = useRecoilState(currentFlowState);
   const [type] = useDnD();
+  const location = useLocation();
+
+  const flowId = location.pathname.split("/")[2];
+  useEffect(() => {
+    const result = axios.get(
+      `http://localhost:3001/api/v1/workflows/${flowId}`,
+    );
+    result.then((res) => {
+      setCurrentFlow(res.data.data[0]);
+      setNodes(res.data.data[0].flowData.nodes);
+      setEdges(res.data.data[0].flowData.edges);
+    });
+  }, []);
+
+  // The below useEffect is very bad practice since it causes several useState calls.
+  // Thus breaking the UI. For now, it is just for testing purposes
+  useEffect(() => {
+    if (currentFlow)
+      setCurrentFlow({
+        id: currentFlow.id,
+        name: currentFlow.name,
+        flowData: { nodes, edges },
+      });
+    console.log(currentFlow);
+  }, [nodes, edges]);
 
   const onConnect = useCallback(
     (connection: Connection) =>
