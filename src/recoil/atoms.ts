@@ -3,7 +3,7 @@ import { Node } from "@xyflow/react";
 
 export const workflowState = atom({
   key: "workflowState",
-  default: null as any,
+  default: [] as any[],
 });
 
 export const flowState = atom({ key: "flowState", default: [] });

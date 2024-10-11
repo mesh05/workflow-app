@@ -12,25 +12,51 @@ import MenuItem from "@mui/material/MenuItem";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import { Link, useLocation } from "react-router-dom";
 import SaveIcon from "@mui/icons-material/Save";
-import FormGroup from '@mui/material/FormGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Switch from "@mui/material/Switch";
+import { useRecoilState } from "recoil";
+import { workflowState } from "../recoil/atoms";
 const settings = ["Import", "Export"];
 
 export default function Navbar() {
-  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
-    null,
-  );
+  const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
+  const workflows = useRecoilState(workflowState);
 
-  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
+  const handleOpenSettings = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
   };
 
-  const handleCloseUserMenu = () => {
+  const handleCloseSettings = () => {
     setAnchorElUser(null);
   };
+
+  const handleImportExport = (event: React.MouseEvent<HTMLElement>) => {
+    const action = event.currentTarget.innerText;
+    if (action === "Import") {
+      console.log("Import!!");
+    }
+    if (action === "Export") {
+      const myData = { workflows: workflows };
+      const json = JSON.stringify(myData, null, 2);
+      const blob = new Blob([json], { type: "application/json" });
+      const href = URL.createObjectURL(blob);
+
+      // create "a" HTLM element with href to file
+      const link = document.createElement("a");
+      link.href = href;
+      link.download = "ExportSuperchatFlow.json";
+      document.body.appendChild(link);
+      link.click();
+
+      // clean up "a" element & remove ObjectURL
+      document.body.removeChild(link);
+      URL.revokeObjectURL(href);
+    }
+  };
+
   const location = useLocation();
-  const [workflowName, setWorkflowName] = useState("Workflow Name");
+  const [workflow, setWorkflow] = useRecoilState(workflowState);
   const path = location.pathname.split("/");
 
   if (path[1] === "")
@@ -60,7 +86,10 @@ export default function Navbar() {
               </Typography>
             </Link>
             <FormGroup>
-            <FormControlLabel control={<Switch defaultChecked />} label="Dark" />
+              <FormControlLabel
+                control={<Switch defaultChecked />}
+                label="Dark"
+              />
             </FormGroup>
 
             <Box sx={{ flexGrow: 0 }}>
@@ -68,7 +97,7 @@ export default function Navbar() {
                 <IconButton
                   disableRipple
                   sx={{ maxWidth: "30px", height: "30px", bgcolor: "white" }}
-                  onClick={handleOpenUserMenu}
+                  onClick={handleOpenSettings}
                 >
                   <SettingsIcon sx={{ color: "black" }} />
                 </IconButton>
@@ -87,13 +116,16 @@ export default function Navbar() {
                   horizontal: "right",
                 }}
                 open={Boolean(anchorElUser)}
-                onClose={handleCloseUserMenu}
+                onClose={handleCloseSettings}
               >
                 {settings.map((setting) => (
                   <MenuItem
                     sx={{ width: "150px" }}
                     key={setting}
-                    onClick={handleCloseUserMenu}
+                    onClick={(event) => {
+                      handleImportExport(event);
+                      handleCloseSettings();
+                    }}
                   >
                     <Typography>{setting}</Typography>
                   </MenuItem>
@@ -118,7 +150,9 @@ export default function Navbar() {
             variant="h6"
             sx={{ ml: "10px", pt: "3px", color: "inherit" }}
           >
-            {workflowName}
+            {workflow.map((item) => {
+              if (item.id === path[2]) return item.name;
+            })}
           </Typography>
         </Box>
         <Box sx={{ mr: "20px" }}>
