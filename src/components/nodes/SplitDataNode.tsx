@@ -1,12 +1,4 @@
-import {
-  Node,
-  Handle,
-  Position,
-  useHandleConnections,
-  useEdgesState,
-  useEdges,
-  Edge,
-} from "@xyflow/react";
+import { Node, Handle, Position, Edge } from "@xyflow/react";
 import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 import { flowState } from "../../recoil/atoms";
@@ -23,16 +15,16 @@ export default function SplitData({
 
   const [flowData, setFlowData] = useRecoilState<any>(flowState);
   const [connections, setConnections] = useState(
-    edges.filter((edge: any) => edge.target === node.id),
+    edges.filter((edge: Edge) => edge.target === node.id),
   );
 
   useEffect(() => {
     setConnections(() => {
-      return edges.filter((edge: any) => edge.target === node.id);
+      return edges.filter((edge: Edge) => edge.target === node.id);
     });
   }, [edges]);
 
-  const inputData: any = flowData.find((tnode: any) => {
+  const inputData = flowData.find((tnode) => {
     return tnode.nodeId === connections[0]?.source;
   });
   const data_80 = inputData?.data.filter(
@@ -44,7 +36,7 @@ export default function SplitData({
 
   useEffect(() => {
     setFlowData((data) => {
-      const newFlowData = data.filter((tnode: any) => {
+      const newFlowData = data.filter((tnode) => {
         return tnode.nodeId !== node.id;
       });
       return [
@@ -92,10 +84,9 @@ export default function SplitData({
 export function SplitDataType({
   id,
   data,
-  type,
 }: {
   id: string;
-  data: any;
+  data: { label: string; data: { data_80: number[][]; data_20: number[][] } };
   type: string;
 }) {
   return (

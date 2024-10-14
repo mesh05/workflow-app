@@ -17,3 +17,8 @@ export const selectedNodeState = atom({
   key: "selectedNodeState",
   default: null as Node | null,
 });
+
+export const tensorState = atom({
+  key: "tensorState",
+  default: null as any,
+});
