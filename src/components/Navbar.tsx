@@ -22,7 +22,7 @@ const settings = ["Import", "Export"];
 
 export default function Navbar() {
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
-  const workflows = useRecoilState(workflowState);
+  const [workflows, setWorkflows] = useRecoilState(workflowState);
 
   const handleOpenSettings = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
@@ -57,18 +57,19 @@ export default function Navbar() {
   };
 
   const location = useLocation();
-  const [workflow, setWorkflow] = useRecoilState(workflowState);
   const currentWorkflow = useRecoilValue(currentFlowState);
 
   const handleSaveFlow = () => {
-    const newWorkflow = workflow.map((item) => {
+    const newWorkflow = workflows.map((item) => {
       if (item.id === currentWorkflow.id) {
         return currentWorkflow;
       } else {
         return item;
       }
     });
-    setWorkflow(newWorkflow);
+    setWorkflows(() => {
+      return newWorkflow;
+    });
     axios
       .put("http://localhost:3001/api/v1/workflows", {
         workflow: currentWorkflow,
@@ -173,7 +174,7 @@ export default function Navbar() {
             variant="h6"
             sx={{ ml: "10px", pt: "3px", color: "inherit" }}
           >
-            {workflow.map((item) => {
+            {workflows.map((item) => {
               if (item.id === path[2]) return item.name;
             })}
           </Typography>

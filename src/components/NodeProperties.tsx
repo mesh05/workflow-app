@@ -1,14 +1,16 @@
 import { Node, Edge } from "@xyflow/react";
 import SplitData from "./nodes/SplitDataNode";
 import Input from "./nodes/InputNode";
-import { useState } from "react";
-import * as tf from "@tensorflow/tfjs";
-import { useRecoilState } from "recoil";
+import ModelLearner from "./nodes/ModelLearnerNode";
+import ModelPredictor from "./nodes/ModelPredictorNode";
+import { useRecoilValue } from "recoil";
 import { flowState, selectedNodeState } from "../recoil/atoms";
+import Output from "./nodes/OutputNode";
 
 // type Data = { file: { name: string; size: number }; data: number[][] } | null;
 
 export default function NodeProperties({
+  edges,
   updateNodeData,
 }: {
   edges: Edge[];
@@ -21,9 +23,8 @@ export default function NodeProperties({
   ) => void;
 }) {
   // const [data, setData] = useState<Data>(null);
-  const [nodeSelected, setNodeSelected] = useRecoilState(selectedNodeState);
-  const [flowData, setFlowData] = useRecoilState(flowState);
-  const [connections, setConnections] = useState([]);
+  const nodeSelected = useRecoilValue(selectedNodeState);
+  const flowData = useRecoilValue(flowState);
   console.log(flowData);
   if (!nodeSelected) {
     return;
@@ -31,43 +32,10 @@ export default function NodeProperties({
   if (nodeSelected.type === "input")
     return <Input node={nodeSelected} updateNodeData={updateNodeData} />;
   if (nodeSelected.type === "split_data")
-    return (
-      <SplitData
-        node={nodeSelected}
-        connections={connections}
-        setConnections={setConnections}
-      />
-    );
-  if (nodeSelected.type === "model learner")
-    return <ModelLearner node={nodeSelected} />;
-  if (nodeSelected.type === "model predictor")
-    return <ModelPredictor node={nodeSelected} />;
+    return <SplitData node={nodeSelected} edges={edges} />;
+  if (nodeSelected.type === "model_learner")
+    return <ModelLearner node={nodeSelected} edges={edges} />;
+  if (nodeSelected.type === "model_predictor")
+    return <ModelPredictor node={nodeSelected} edges={edges} />;
   if (nodeSelected.type === "output") return <Output node={nodeSelected} />;
-}
-
-function ModelLearner({ node }: { node: Node }) {
-  return (
-    <div>
-      <h2>Model Learner Node</h2>
-      <p>{JSON.stringify(node)}</p>
-    </div>
-  );
-}
-
-function ModelPredictor({ node }: { node: Node }) {
-  return (
-    <div>
-      <h2>Model Learner Node</h2>
-      <p>{JSON.stringify(node)}</p>
-    </div>
-  );
-}
-
-function Output({ node }: { node: Node }) {
-  return (
-    <div>
-      <h2>Output Node</h2>
-      <p>{JSON.stringify(node)}</p>
-    </div>
-  );
 }

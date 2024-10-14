@@ -11,6 +11,7 @@ import {
   Background,
   Connection,
   useNodes,
+  useEdges,
 } from "@xyflow/react";
 import "./index.css";
 import "@xyflow/react/dist/style.css";
@@ -19,12 +20,9 @@ import { DnDProvider, useDnD } from "../../components/DnDContext";
 import NodeMenu from "../../components/NodeMenu";
 import NodeProperties from "../../components/NodeProperties";
 import { useRecoilState } from "recoil";
-import {
-  selectedNodeState,
-  workflowState,
-  currentFlowState,
-} from "../../recoil/atoms";
+import { selectedNodeState, currentFlowState } from "../../recoil/atoms";
 import { SplitDataType } from "../../components/nodes/SplitDataNode";
+import { ModelPredictorType } from "../../components/nodes/ModelPredictorNode";
 import { flowState } from "../../recoil/atoms";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
@@ -64,8 +62,9 @@ const initialNodes: Node[] = [
   },
 ];
 
-let id = 0;
-const getId = () => `dndnode_${id++}`;
+// let id = 0;
+// const getId = () => `dndnode_${id++}`;
+const getId = () => `dndnode_${Math.floor(Math.random() * 1000000)}`;
 
 const DnDFlow = () => {
   const reactFlowWrapper = useRef(null);
@@ -74,10 +73,11 @@ const DnDFlow = () => {
   const { screenToFlowPosition, updateNodeData } = useReactFlow();
   const [nodeSelected, setNodeSelected] = useRecoilState(selectedNodeState);
   const [flowData, setFlowData] = useRecoilState(flowState);
-  const [workflows, setWorkflows] = useRecoilState(workflowState);
   const [currentFlow, setCurrentFlow] = useRecoilState(currentFlowState);
   const [type] = useDnD();
   const location = useLocation();
+
+  console.log("nodes", nodes);
 
   const flowId = location.pathname.split("/")[2];
   useEffect(() => {
@@ -116,7 +116,6 @@ const DnDFlow = () => {
 
   const onNodeClick = (event: React.MouseEvent, node: Node) => {
     setNodeSelected(node);
-    console.log("onNodeClick", nodeSelected);
   };
 
   // (BUG) On drop is returning type as null
@@ -148,7 +147,6 @@ const DnDFlow = () => {
       const newFlowData = flowData.filter((tnode) => {
         return tnode.nodeId !== node[0].id;
       });
-      console.log("delete ", node[0]);
       setFlowData(newFlowData);
     },
     [flowData],
@@ -170,6 +168,7 @@ const DnDFlow = () => {
           edges={edges}
           nodeTypes={{
             split_data: SplitDataType,
+            model_predictor: ModelPredictorType,
           }}
           onNodeClick={onNodeClick}
           onNodesChange={onNodesChange}

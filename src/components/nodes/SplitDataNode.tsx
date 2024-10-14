@@ -1,20 +1,37 @@
-import { Node, Handle, Position, useHandleConnections } from "@xyflow/react";
-import { useEffect } from "react";
+import {
+  Node,
+  Handle,
+  Position,
+  useHandleConnections,
+  useEdgesState,
+  useEdges,
+  Edge,
+} from "@xyflow/react";
+import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 import { flowState } from "../../recoil/atoms";
 
 export default function SplitData({
   node,
-  connections,
-  setConnections,
+  edges,
 }: {
   node: Node;
-  connections: any;
-  setConnections: any;
+  edges: Edge[];
 }) {
   // The solution implemented here is bad, need to find a better way to handle connections
-  setConnections(useHandleConnections({ type: "target", nodeId: node.id }));
+  // setConnections(useHandleConnections({ type: "target", nodeId: node.id }));
+
   const [flowData, setFlowData] = useRecoilState<any>(flowState);
+  const [connections, setConnections] = useState(
+    edges.filter((edge: any) => edge.target === node.id),
+  );
+
+  useEffect(() => {
+    setConnections(() => {
+      return edges.filter((edge: any) => edge.target === node.id);
+    });
+  }, [edges]);
+
   const inputData: any = flowData.find((tnode: any) => {
     return tnode.nodeId === connections[0]?.source;
   });
@@ -24,21 +41,24 @@ export default function SplitData({
   const data_20 = inputData?.data.filter(
     (_: number[], i: number) => i % 5 === 0,
   );
-  const newFlowData = flowData.filter((tnode: any) => {
-    return tnode.nodeId !== node.id;
-  });
+
   useEffect(() => {
-    setFlowData([
-      ...newFlowData,
-      {
-        nodeId: node.id,
-        type: "split_data",
-        data: {
-          data_80,
-          data_20,
+    setFlowData((data) => {
+      const newFlowData = data.filter((tnode: any) => {
+        return tnode.nodeId !== node.id;
+      });
+      return [
+        ...newFlowData,
+        {
+          nodeId: node.id,
+          type: "split_data",
+          data: {
+            data_80,
+            data_20,
+          },
         },
-      },
-    ]);
+      ];
+    });
   }, [connections]);
 
   if (connections.length === 0) {
@@ -84,13 +104,13 @@ export function SplitDataType({
       <label>{data.label}</label>
 
       <Handle
-        style={{ left: "30px", width: "10px", height: "10px" }}
+        style={{ left: "25%", width: "10px", height: "10px" }}
         id={`${id}_80`}
         type="source"
         position={Position.Bottom}
       />
       <Handle
-        style={{ left: "110px" }}
+        style={{ left: "75%" }}
         id={`${id}_20`}
         type="source"
         position={Position.Bottom}
